@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<style>
+  .game-credit-tag {
+    position: fixed;
+    bottom: 12px;
+    right: 16px;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: system-ui, -apple-system, sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    pointer-events: none;
+  }
+</style>
+<div class="game-credit-tag">Created By Avinash And Rishabh</div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Collect SDGs - Eco Odyssey</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+   
+    html, body {
+      width: 100%; height: 100%;
+      background: #020617; color: #f8fafc;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+    }
+
+    #gameCanvas {
+      position: absolute; top: 0; left: 0;
+      width: 100vw; height: 100vh; display: block;
+      background: #09170a;
+    }
+
+    #hud {
+      position: absolute;
+      top: 16px; left: 16px; right: 240px;
+      display: flex; justify-content: space-between; align-items: center;
+      pointer-events: none; z-index: 5;
+    }
+
+    .hud-panel {
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid rgba(74, 222, 128, 0.5);
+      backdrop-filter: blur(12px);
+      padding: 8px 16px; border-radius: 16px;
+      display: flex; gap: 14px; align-items: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      pointer-events: auto;
+    }
+
+    .title { font-size: 1.05rem; font-weight: 900; color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.5); }
+    .stats { font-size: 0.88rem; font-weight: 800; display: flex; gap: 12px; }
+
+    #sdg-bar { display: flex; gap: 5px; flex-wrap: wrap; }
+
+    .chip {
+      width: 30px; height: 30px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 900; opacity: 0.25;
+      border: 2px solid rgba(255,255,255,0.3); transition: all 0.3s ease; color: #fff;
+    }
+    .chip.active { opacity: 1; transform: scale(1.15); box-shadow: 0 0 12px currentColor; border-color: #fff; }
+    #c3 { background: #4c9f38; } #c4 { background: #c5192d; }
+    #c6 { background: #26bde2; } #c7 { background: #fcc30b; color: #000; }
+    #c13 { background: #3f7e44; } #c15 { background: #56c02b; }
+
+    .audio-btn {
+      background: #1e293b; border: 1.5px solid #4ade80; color: #4ade80;
+      border-radius: 8px; padding: 4px 10px; font-size: 0.75rem; font-weight: 800; cursor: pointer;
+    }
+
+    #toast {
+      position: absolute; top: 80px; left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      background: rgba(15, 23, 42, 0.95); border: 2px solid #4ade80; color: #fff;
+      padding: 10px 22px; border-radius: 20px; font-size: 0.9rem; font-weight: 700;
+      text-align: center; pointer-events: none; opacity: 0; transition: all 0.3s ease;
+      z-index: 6; box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Modals & Overlays */
+    .modal-overlay {
+      position: absolute; inset: 0; background: rgba(2, 6, 23, 0.95);
+      backdrop-filter: blur(16px); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 20px;
+      text-align: center; gap: 14px; z-index: 10; overflow-y: auto;
+    }
+    .modal-overlay.hidden, .hidden { display: none !important; }
+    .modal-overlay h1 { color: #4ade80; font-size: 2.5rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 25px rgba(74, 222, 128, 0.5); }
+    .modal-overlay p { font-size: 0.95rem; color: #94a3b8; max-width: 520px; line-height: 1.4; }
+
+    .btn {
+      background: linear-gradient(135deg, #4ade80, #16a34a); color: #020617;
+      border: none; padding: 12px 34px; font-size: 1.05rem; font-weight: 900;
+      border-radius: 30px; cursor: pointer; box-shadow: 0 0 25px rgba(74, 222, 128, 0.5);
+      transition: transform 0.15s, box-shadow 0.2s;
+    }
+    .btn:hover { transform: scale(1.05); box-shadow: 0 0 35px rgba(74, 222, 128, 0.7); }
+
+    /* Skin Selector */
+    .skin-selector { display: flex; gap: 12px; margin: 6px 0; }
+    .skin-card {
+      width: 70px; height: 85px; border-radius: 14px; background: rgba(30, 41, 59, 0.8);
+      border: 2px solid rgba(255,255,255,0.2); cursor: pointer; display: flex;
+      flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .skin-card:hover, .skin-card.selected { transform: translateY(-4px); border-color: #4ade80; box-shadow: 0 0 15px rgba(74, 222, 128, 0.4); }
+    .skin-card.selected { background: rgba(74, 222, 128, 0.15); }
+    .skin-preview { width: 30px; height: 30px; border-radius: 50%; }
+
+    /* Scoreboard Table */
+    .score-breakdown {
+      background: rgba(15, 23, 42, 0.85); border: 2px solid #38bdf8;
+      border-radius: 16px; padding: 14px; width: 100%; max-width: 480px; text-align: left;
+    }
+    .score-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.88rem; }
+    .score-row.total { font-weight: 900; font-size: 1.1rem; color: #4ade80; border-bottom: none; padding-top: 10px; }
+
+    .leaderboard-box {
+      background: rgba(15, 23, 42, 0.85); border: 2px solid #facc15;
+      border-radius: 16px; padding: 14px; width: 100%; max-width: 480px; margin-top: 8px;
+    }
+    .lb-header { color: #facc15; font-weight: 900; font-size: 1rem; margin-bottom: 8px; text-align: center; }
+
+    /* Climate Choice Grid */
+    .climate-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0; }
+    .climate-btn {
+      background: rgba(30, 41, 59, 0.9); border: 2px solid #38bdf8;
+      border-radius: 14px; padding: 12px 14px; color: #fff; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .climate-btn:hover { transform: scale(1.04); box-shadow: 0 0 18px rgba(56, 189, 248, 0.5); }
+
+    /* Trash Cans Mini-Game */
+    .bins-container { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 16px 0; }
+    .trash-can {
+      width: 140px; padding: 12px; border-radius: 16px; border: 3px solid;
+      background: rgba(15, 23, 42, 0.85); display: flex; flex-direction: column;
+      align-items: center; gap: 6px; cursor: pointer; transition: transform 0.2s;
+    }
+    .trash-can:hover { transform: translateY(-4px); }
+
+    #bin-1 { border-color: #3b82f6; color: #60a5fa; }
+    #bin-2 { border-color: #f59e0b; color: #fbbf24; }
+    #bin-3 { border-color: #10b981; color: #34d399; }
+
+    .current-sdg-card {
+      background: rgba(30, 41, 59, 0.9); border: 2px solid #38bdf8;
+      border-radius: 14px; padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+      margin-top: 10px;
+    }
+    .sdg-badge { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 900; color: #fff; }
+
+    #mobile-controls {
+      position: absolute; bottom: 16px; left: 16px; right: 16px;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      pointer-events: none; z-index: 5;
+    }
+    .dpad { display: grid; grid-template-columns: repeat(3, 46px); gap: 4px; pointer-events: auto; }
+    .dbtn {
+      width: 46px; height: 46px; background: rgba(15, 23, 42, 0.85);
+      border: 2px solid rgba(74, 222, 128, 0.5); color: #4ade80;
+      font-size: 1.1rem; font-weight: bold; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer; touch-action: manipulation;
+    }
+    #btn-u { grid-column: 2; } #btn-l { grid-column: 1; grid-row: 2; }
+    #btn-d { grid-column: 2; grid-row: 2; } #btn-r { grid-column: 3; grid-row: 2; }
+
+    .action-group { display: flex; gap: 10px; pointer-events: auto; }
+    .act-btn {
+      width: 65px; height: 65px; border-radius: 50%; color: #fff; font-weight: 900;
+      font-size: 0.7rem; border: none; cursor: pointer; touch-action: manipulation;
+    }
+    #atk-btn { background: linear-gradient(135deg, #ef4444, #dc2626); border: 2px solid #fca5a5; }
+    #dash-btn { background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: 2px solid #93c5fd; }
+  </style>
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+
+<div id="hud">
+  <div class="hud-panel">
+    <div class="title" id="biome-title">COLLECT SDGs</div>
+  </div>
+
+  <div id="sdg-bar">
+    <div id="c3" class="chip">3</div>
+    <div id="c4" class="chip">4</div>
+    <div id="c6" class="chip">6</div>
+    <div id="c7" class="chip">7</div>
+    <div id="c13" class="chip">13</div>
+    <div id="c15" class="chip">15</div>
+  </div>
+
+  <div class="hud-panel">
+    <div class="stats">
+      <div>TIME: <span id="timer-txt" style="color:#facc15;">100</span>s</div>
+      <div>HP: <span id="hp-txt" style="color:#4ade80;">100</span></div>
+      <div>SCORE: <span id="score-txt" style="color:#c084fc;">0</span></div>
+    </div>
+    <button class="audio-btn" onclick="toggleBGM()">🎵 BGM: ON</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Start Overlay -->
+<div id="startModal" class="modal-overlay">
+  <h1>COLLECT SDGs</h1>
+  <p>Outsmart pursuing drones, collect SDG cores, sort eco-waste, and clear climate levels!</p>
+ 
+  <div style="font-weight:800; color:#4ade80; font-size:0.9rem;">CHOOSE BALL SKIN</div>
+  <div class="skin-selector">
+    <div class="skin-card selected" onclick="selectSkin('eco', this)">
+      <div class="skin-preview" style="background: radial-gradient(circle, #86efac, #22c55e);"></div>
+      <span style="font-size:0.75rem; color:#fff; font-weight:700;">Eco</span>
+    </div>
+    <div class="skin-card" onclick="selectSkin('solar', this)">
+      <div class="skin-preview" style="background: radial-gradient(circle, #fde047, #eab308);"></div>
+      <span style="font-size:0.75rem; color:#fff; font-weight:700;">Solar</span>
+    </div>
+    <div class="skin-card" onclick="selectSkin('hydro', this)">
+      <div class="skin-preview" style="background: radial-gradient(circle, #67e8f9, #06b6d4);"></div>
+      <span style="font-size:0.75rem; color:#fff; font-weight:700;">Hydro</span>
+    </div>
+    <div class="skin-card" onclick="selectSkin('cyber', this)">
+      <div class="skin-preview" style="background: radial-gradient(circle, #f472b6, #c084fc);"></div>
+      <span style="font-size:0.75rem; color:#fff; font-weight:700;">Cyber</span>
+    </div>
+    <div class="skin-card" onclick="selectSkin('magma', this)">
+      <div class="skin-preview" style="background: radial-gradient(circle, #fca5a5, #ef4444);"></div>
+      <span style="font-size:0.75rem; color:#fff; font-weight:700;">Magma</span>
+    </div>
+  </div>
+
+  <button class="btn" onclick="startGame()">START MISSION</button>
+
+  <div class="leaderboard-box">
+    <div class="lb-header">🏆 PERSISTENT HIGH SCORES</div>
+    <div id="start-leaderboard-list"></div>
+  </div>
+</div>
+
+<script>
+const COLS = 31, ROWS = 31, TILE = 64;
+let maze = [], items = [], drones = [], particles = [], projectiles = [], grassBlades = [], trailParticles = [], weatherParticles = [], shockwaves = [];
+let bouncyWalls = {};
+let level = 1, timeLeft = 100, gameActive = false, timerInterval = null, globalTime = 0;
+let collectedSDGs = new Set(), shake = 0, levelCompleting = false;
+let lastTime = performance.now(), audioCtx = null, bgmNode = null, bgmEnabled = true;
+let camX = 0, camY = 0, currentClimate = 'DAY', selectedSkin = 'eco';
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+let gameStats = { enemiesKilled: 0, goalsCollected: 0, segregationsCorrect: 0, levelsCompleted: 0 };
+
+function calculateTotalScore() {
+  return (gameStats.enemiesKilled * 50) + (gameStats.goalsCollected * 100) + (gameStats.segregationsCorrect * 10) + (gameStats.levelsCompleted * 200);
+}
+
+const SKINS = {
+  eco: { main: '#22c55e', light: '#86efac', dark: '#14532d', trail: '#4ade80' },
+  solar: { main: '#eab308', light: '#fde047', dark: '#854d0e', trail: '#facc15' },
+  hydro: { main: '#06b6d4', light: '#67e8f9', dark: '#164e63', trail: '#38bdf8' },
+  cyber: { main: '#c084fc', light: '#f472b6', dark: '#581c87', trail: '#e879f9' },
+  magma: { main: '#ef4444', light: '#fca5a5', dark: '#7f1d1d', trail: '#f87171' }
+};
+
+const SDG_DATA = {
+  3: { name: "Good Health & Well-being", color: "#4c9f38", category: "HEALTH_SOCIAL", desc: "Promote health & well-being for all." },
+  4: { name: "Quality Education", color: "#c5192d", category: "HEALTH_SOCIAL", desc: "Ensure equitable quality education." },
+  6: { name: "Clean Water & Sanitation", color: "#26bde2", category: "WATER_LAND", desc: "Ensure availability of clean water." },
+  7: { name: "Affordable & Clean Energy", color: "#fcc30b", category: "ENERGY_CLIMATE", desc: "Promote affordable, clean energy." },
+  13: { name: "Climate Action", color: "#3f7e44", category: "ENERGY_CLIMATE", desc: "Take urgent action against climate change." },
+  15: { name: "Life on Land", color: "#56c02b", category: "WATER_LAND", desc: "Protect & restore terrestrial ecosystems." }
+};
+
+let player = {
+  x: TILE * 1.5, y: TILE * 1.5,
+  vx: 0, vy: 0, radius: TILE * 0.28, hp: 100,
+  restitution: 0.65, friction: 0.93, accelPower: 1350, rotation: 0,
+  dashCooldown: 0, attackCooldown: 0, maxDashCooldown: 0.55
+};
+
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function generateMaze() {
+  maze = Array(ROWS).fill(0).map(() => Array(COLS).fill(1));
+  function carve(r, c) {
+    maze[r][c] = 0;
+    const dirs = [[-2,0],[2,0],[0,-2],[0,2]].sort(() => Math.random() - 0.5);
+    for (let [dr, dc] of dirs) {
+      let nr = r + dr, nc = c + dc;
+      if (nr > 0 && nr < ROWS-1 && nc > 0 && nc < COLS-1 && maze[nr][nc] === 1) {
+        maze[r + dr/2][c + dc/2] = 0;
+        carve(nr, nc);
+      }
+    }
+  }
+  carve(1, 1);
+  for (let i = 0; i < 55; i++) {
+    let r = Math.floor(Math.random() * (ROWS - 2)) + 1;
+    let c = Math.floor(Math.random() * (COLS - 2)) + 1;
+    maze[r][c] = 0;
+  }
+  maze[ROWS-2][COLS-2] = 0; maze[ROWS-2][COLS-3] = 0;
+
+  grassBlades = [];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (maze[r][c] === 0) {
+        for (let k = 0; k < 3; k++) {
+          grassBlades.push({
+            x: c * TILE + Math.random() * TILE,
+            y: r * TILE + Math.random() * TILE,
+            height: Math.random() * 8 + 4,
+            swayOffset: Math.random() * Math.PI * 2
+          });
+        }
+      }
+    }
+  }
+}
+
+function buildLevel() {
+  generateMaze();
+  collectedSDGs.clear();
+  levelCompleting = false;
+
+  document.getElementById('biome-title').innerText = `STAGE ${level} — ${currentClimate}`;
+
+  player.x = TILE * 1.5; player.y = TILE * 1.5;
+  player.vx = 0; player.vy = 0; player.hp = 100; player.rotation = 0;
+
+  let openSpots = [];
+  for (let r = 1; r < ROWS - 1; r++) {
+    for (let c = 1; c < COLS - 1; c++) {
+      if (maze[r][c] === 0 && !(r === 1 && c === 1) && !(r === ROWS-2 && c === COLS-2)) {
+        openSpots.push({ c, r });
+      }
+    }
+  }
+  openSpots.sort(() => Math.random() - 0.5);
+
+  const types = [3, 4, 6, 7, 13, 15];
+  items = types.map(id => {
+    let spot = openSpots.pop();
+    return { id, x: spot.c * TILE + TILE/2, y: spot.r * TILE + TILE/2, color: SDG_DATA[id].color };
+  });
+
+  drones = [];
+  let droneCount = 5 + level * 2;
+  for (let i = 0; i < droneCount; i++) {
+    if (openSpots.length > 0) {
+      let spot = openSpots.pop();
+      drones.push({
+        x: spot.c * TILE + TILE/2, y: spot.r * TILE + TILE/2,
+        vx: 0, vy: 0, speed: 120 + level * 14,
+        radius: TILE * 0.25, hp: 2, angle: Math.random() * Math.PI * 2
+      });
+    }
+  }
+  particles = []; projectiles = []; trailParticles = []; shockwaves = []; bouncyWalls = {};
+  updateUI();
+}
+
+function startGame() {
+  document.getElementById('startModal').classList.add('hidden');
+  gameStats = { enemiesKilled: 0, goalsCollected: 0, segregationsCorrect: 0, levelsCompleted: 0 };
+  level = 1;
+  buildLevel();
+  timeLeft = 100;
+  gameActive = true; lastTime = performance.now();
+  startBGM();
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (!gameActive || levelCompleting) return;
+    timeLeft--;
+    updateUI();
+    if (timeLeft <= 0) gameOver('TIME EXPIRED', 'The environmental degradation timer ran out.');
+  }, 1000);
+}
+
+function selectSkin(skinKey, cardEl) {
+  selectedSkin = skinKey;
+  document.querySelectorAll('.skin-card').forEach(c => c.classList.remove('selected'));
+  cardEl.classList.add('selected');
+}
+
+function toggleBGM() {
+  bgmEnabled = !bgmEnabled;
+  const btn = document.querySelector('.audio-btn');
+  btn.innerText = bgmEnabled ? "🎵 BGM: ON" : "🔇 BGM: OFF";
+}
+
+function startBGM() {
+  if (!bgmEnabled) return;
+  if (bgmNode) return;
+  bgmNode = setInterval(() => {
+    if (!gameActive || !bgmEnabled) return;
+  }, 220);
+}
+
+function updateUI() {
+  document.getElementById('hp-txt').innerText = Math.max(0, Math.floor(player.hp));
+  document.getElementById('timer-txt').innerText = timeLeft;
+  document.getElementById('score-txt').innerText = calculateTotalScore();
+  [3, 4, 6, 7, 13, 15].forEach(id => {
+    const chip = document.getElementById(`c${id}`);
+    if (collectedSDGs.has(id)) chip.classList.add('active');
+    else chip.classList.remove('active');
+  });
+}
+
+function gameOver(title, desc) {
+  gameActive = false;
+  clearInterval(timerInterval);
+  if (bgmNode) clearInterval(bgmNode);
+  alert(`${title}\n${desc}\nFinal Score: ${calculateTotalScore()}`);
+  location.reload();
+}
+
+function draw() {
+  ctx.fillStyle = '#09170a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#0f3d20';
+  for (let i = 0; i < grassBlades.length; i++) {
+    let b = grassBlades[i];
+    ctx.fillRect(b.x, b.y, 2, b.height);
+  }
+  ctx.fillStyle = SKINS[selectedSkin].main;
+  ctx.beginPath();
+  ctx.arc(player.x - camX, player.y - camY, player.radius, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function update(dt) {
+  if (!gameActive) return;
+  globalTime += dt;
+  
+  player.x += player.vx * dt;
+  player.y += player.vy * dt;
+  
+  if (collectedSDGs.size === 6 && !levelCompleting) {
+    levelCompleting = true;
+    gameStats.levelsCompleted++;
+    updateUI();
+  }
+  
+  camX = player.x - canvas.width / 2;
+  camY = player.y - canvas.height / 2;
+}
+
+function loop() {
+  let now = performance.now();
+  let dt = (now - lastTime) / 1000;
+  lastTime = now;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+
+const KEYS = {};
+window.addEventListener('keydown', e => KEYS[e.key.toLowerCase()] = true);
+window.addEventListener('keyup', e => KEYS[e.key.toLowerCase()] = false);
+</script>
+</body>
+</html>
