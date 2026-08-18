@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Mega Games Hub - 5 Sustainability Games</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🌍 Mega Games Hub</div>
+            <div class="nav-links">
+                <a href="#games">Games</a>
+                <a href="#about">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">🎮 MEGA GAMES COLLECTION</h1>
+            <p class="hero-subtitle">Explore 5 Incredible Sustainability Games</p>
+            <p class="hero-description">A curated collection of amazing eco-themed games crafted with creativity and innovation by Avinash & Rishabh</p>
+            <a href="#games" class="cta-button">Explore Games</a>
+        </div>
+        <div class="hero-background"></div>
+    </section>
+
+    <!-- Games Section -->
+    <section id="games" class="games-section">
+        <div class="section-title">
+            <h2>Featured Games</h2>
+            <p>Click on any game to learn more and play</p>
+        </div>
+
+        <div class="games-grid">
+            <!-- Game 1 -->
+            <div class="game-card" data-game="1">
+                <div class="game-card-inner">
+                    <div class="game-card-front">
+                        <div class="game-icon">🎯</div>
+                        <h3 class="game-title">Collect SDGs</h3>
+                        <p class="game-status">Eco Maze Adventure</p>
+                        <p class="game-info">🎮 Puzzle | 🎮 Action</p>
+                    </div>
+                    <div class="game-card-back">
+                        <p class="game-description">Navigate through an eco-maze, collect SDG cores, sort waste, fight off drones, and clear climate levels. Battle pursuers while collecting sustainable development goals!</p>
+                        <a href="#" class="play-btn" onclick="playGame(1); return false;">Play Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game 2 -->
+            <div class="game-card" data-game="2">
+                <div class="game-card-inner">
+                    <div class="game-card-front">
+                        <div class="game-icon">🔍</div>
+                        <h3 class="game-title">Word Search</h3>
+                        <p class="game-status">Sustainability Search</p>
+                        <p class="game-info">🧩 Puzzle | 🎮 Relaxing</p>
+                    </div>
+                    <div class="game-card-back">
+                        <p class="game-description">Find all words related to nature and sustainability in the puzzle. Drag across horizontally or vertically to find hidden environmental keywords and unlock eco-facts!</p>
+                        <a href="#" class="play-btn" onclick="playGame(2); return false;">Play Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game 3 -->
+            <div class="game-card" data-game="3">
+                <div class="game-card-inner">
+                    <div class="game-card-front">
+                        <div class="game-icon">🚊</div>
+                        <h3 class="game-title">Save Our World</h3>
+                        <p class="game-status">AI Dilemma Simulator</p>
+                        <p class="game-info">🤖 Strategy | 🧠 Decision Making</p>
+                    </div>
+                    <div class="game-card-back">
+                        <p class="game-description">Navigate the tram through moral dilemmas and see your choices reflect on sustainability. Make decisions guided by AI policy recommendations across 15 global SDG challenges!</p>
+                        <a href="#" class="play-btn" onclick="playGame(3); return false;">Play Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game 4 -->
+            <div class="game-card" data-game="4">
+                <div class="game-card-inner">
+                    <div class="game-card-front">
+                        <div class="game-icon">🔪</div>
+                        <h3 class="game-title">Shredder</h3>
+                        <p class="game-status">Industrial Machine</p>
+                        <p class="game-info">🎮 Action | ♻️ Eco-Friendly</p>
+                    </div>
+                    <div class="game-card-back">
+                        <p class="game-description">Drag photorealistic waste items into the industrial shredder. Convert waste into dust using the heavy machinery shredder and watch physics debris fly across the screen!</p>
+                        <a href="#" class="play-btn" onclick="playGame(4); return false;">Play Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game 5 -->
+            <div class="game-card" data-game="5">
+                <div class="game-card-inner">
+                    <div class="game-card-front">
+                        <div class="game-icon">⏱️</div>
+                        <h3 class="game-title">Eco Timer</h3>
+                        <p class="game-status">Precision Challenge</p>
+                        <p class="game-info">⏰ Timing | 🧠 Concentration</p>
+                    </div>
+                    <div class="game-card-back">
+                        <p class="game-description">Stop the timer exactly at 3 different time levels to demonstrate your precision and concentration. Test your timing skills with SDG-based environmental challenges!</p>
+                        <a href="#" class="play-btn" onclick="playGame(5); return false;">Play Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game Player Modal -->
+    <div id="gamePlayerModal" class="modal hidden">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeGame()">&times;</button>
+            <div id="gameFrame" class="game-frame"></div>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="about-content">
+            <h2>About This Collection</h2>
+            <p>This is a mega collection of 5 amazing sustainability games built with passion and creativity by <strong>Avinash & Rishabh</strong>. Each game offers a unique experience and interactive gameplay focused on environmental awareness and sustainable development goals.</p>
+            <p>🌍 Explore different gameplay styles from action-packed adventures to relaxing puzzles, all with a mission to educate and inspire environmental consciousness.</p>
+            <div class="creators">
+                <div class="creator-card">
+                    <h3>👨‍💻 Avinash</h3>
+                    <p>Game Developer & Designer</p>
+                </div>
+                <div class="creator-card">
+                    <h3>👨‍💻 Rishabh</h3>
+                    <p>Game Developer & Creator</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Mega Games Collection. Created by Avinash & Rishabh 🎮</p>
+        <p>Built with ❤️ for Sustainability & Entertainment</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
